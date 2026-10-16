@@ -8,6 +8,3 @@ ADMINS = [int(x) for x in environ.get("ADMINS", "").replace(",", " ").split() if
 DATABASE_URI = environ.get("DATABASE_URI", "")
 DATABASE_NAME = environ.get("DATABASE_NAME", "Cluster0")
 PORT = int(environ.get("PORT", "8080"))
-
-# পুরোনো চ্যানেল পোস্ট ক্লিন করার জন্য ইউজার সেশন
-HISTORY_SESSION = environ.get("HISTORY_SESSION", "")
