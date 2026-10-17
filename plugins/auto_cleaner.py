@@ -111,6 +111,7 @@ def clean_text(text, remove_texts):
             )
 
     result = re.sub(r"\[\s*\]", "", result)
+    result = re.sub(r"[ \t]{2,}", " ", result)
     result = re.sub(r"^[\s\-_:|]+$", "", result, flags=re.MULTILINE)
     result = "\n".join(
         line.strip() for line in result.splitlines() if line.strip()

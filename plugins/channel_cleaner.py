@@ -64,6 +64,7 @@ def clean_text(text, remove_texts):
             )
 
     result = re.sub(r"\[\s*\]", "", result)
+    result = re.sub(r"[ \t]{2,}", " ", result)
     result = re.sub(r"^[\s\-_:|]+$", "", result, flags=re.MULTILINE)
     result = "\n".join(
         line.strip() for line in result.splitlines() if line.strip()
@@ -211,15 +212,21 @@ async def channel_cleaner_callback(client, query):
         await show_channel_list(query)
         return
 
-    if data == "cc_stop_clean":
-        # স্ক্যান থামানোর অনুরোধ
-        await query.answer("⏹ স্ক্যান থামানো হচ্ছে...")
+    if data.startswith("cc_stop_clean:"):
         try:
-            await query.message.edit_reply_markup(
-                reply_markup=InlineKeyboardMarkup([])
+            channel_id = int(data.split(":", 1)[1])
+        except ValueError:
+            await query.answer("Invalid channel id.", show_alert=True)
+            return
+
+        if channel_id not in RUNNING_JOBS:
+            await query.answer(
+                "এই চ্যানেলে কোনো ক্লিনিং চলছে না।", show_alert=True
             )
-        except Exception:
-            pass
+            return
+
+        CANCEL_JOBS.add(channel_id)
+        await query.answer("⏹ পরের পোস্টের পর স্ক্যান থামবে।")
         return
 
 
@@ -342,7 +349,7 @@ async def clean_channel_history(client, message, channel_id, title):
         "🔎 পুরোনো পোস্ট পরীক্ষা শুরু হচ্ছে...",
         parse_mode=enums.ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton("⏹ Stop", callback_data="cc_stop_clean")
+            InlineKeyboardButton("⏹ Stop", callback_data=f"cc_stop_clean:{channel_id}")
         ]]),
     )
 
@@ -417,7 +424,7 @@ async def clean_channel_history(client, message, channel_id, title):
                         parse_mode=enums.ParseMode.HTML,
                         reply_markup=InlineKeyboardMarkup([[
                             InlineKeyboardButton(
-                                "⏹ Stop", callback_data="cc_stop_clean"
+                                "⏹ Stop", callback_data=f"cc_stop_clean:{channel_id}"
                             )
                         ]]),
                     )
