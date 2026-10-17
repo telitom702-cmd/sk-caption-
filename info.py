@@ -8,3 +8,6 @@ ADMINS = [int(x) for x in environ.get("ADMINS", "").replace(",", " ").split() if
 DATABASE_URI = environ.get("DATABASE_URI", "")
 DATABASE_NAME = environ.get("DATABASE_NAME", "Cluster0")
 PORT = int(environ.get("PORT", "8080"))
+
+# User session used only to read older channel history.
+HISTORY_SESSION = environ.get("HISTORY_SESSION", "").strip()
